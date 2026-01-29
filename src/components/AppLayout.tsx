@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { VotingProvider, useVoting } from '@/contexts/VotingContext';
+import { VotingProvider, useVoting } from '../contexts/VotingContext';
 import LoginPage from './voting/LoginPage';
 import VotingPortal from './voting/VotingPortal';
 import AdminDashboard from './voting/AdminDashboard';

@@ -212,7 +212,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                   )}
                 </button>
                 <p className="text-center text-sm text-gray-500">
-                  Default: admin / admin123
+                  Default: Contact Administrator
                 </p>
               </form>
             )}
