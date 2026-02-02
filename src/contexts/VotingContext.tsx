@@ -29,10 +29,11 @@ export const VotingProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [votes, setVotes] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
-  const [hasVoted, setHasVoted] = useState(() => {
+  /* const [hasVoted, setHasVoted] = useState(() => {
     const saved = localStorage.getItem('hasVoted');
     return saved === 'true';
-  });
+  }); */
+  const [hasVoted, setHasVoted] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -42,10 +43,27 @@ export const VotingProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     }
   }, [user]);
 
-  useEffect(() => {
+  /* useEffect(() => {
     localStorage.setItem('hasVoted', hasVoted.toString());
-  }, [hasVoted]);
-
+  }, [hasVoted]); */
+  useEffect(() => {
+    const checkIfVoted = async () => {
+      if (!user?.studentId) return;
+      try {
+        const { data, error } = await supabase
+          .from('votes')
+          .select('id')
+          .eq('student_id', user.studentId)
+          .limit(1);
+        
+        if (error) throw error;
+        setHasVoted(data && data.length > 0);
+      } catch (error) {
+        console.error('Error checking vote status:', error);
+      }
+    };
+    checkIfVoted();
+  }, [user]);
   const fetchCategories = async () => {
     setLoading(true);
     try {
@@ -82,7 +100,7 @@ export const VotingProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   const submitVotes = async (): Promise<boolean> => {
     if (!user?.studentId) return false;
-    
+
     setLoading(true);
     try {
       const voteEntries = Object.entries(votes).map(([categoryId, candidateId]) => ({
@@ -91,16 +109,24 @@ export const VotingProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         student_id: user.studentId,
       }));
 
-      const { error } = await supabase
-        .from('votes')
-        .insert(voteEntries);
+      console.log('Submitting votes:', voteEntries);
 
-      if (error) throw error;
-      
+      const { data, error } = await supabase
+        .from('votes')
+        .insert(voteEntries)
+        .select();
+
+      if (error) {
+        console.error('Database error:', error);
+        throw error;
+      }
+
+      console.log('Votes submitted successfully:', data);
       setHasVoted(true);
       return true;
     } catch (error) {
       console.error('Error submitting votes:', error);
+      alert(`Failed to submit votes: ${error.message}`);
       return false;
     } finally {
       setLoading(false);

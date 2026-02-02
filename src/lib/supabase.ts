@@ -2,8 +2,8 @@ import { createClient } from '@supabase/supabase-js';
 
 
 // Initialize database client
-const supabaseUrl = 'https://appmtbnlncknxktldrdn.databasepad.com';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjQxOGU1NTA2LThlNzAtNDgwMi05ODMwLTgzYzIwMjQ0MDhjMSJ9.eyJwcm9qZWN0SWQiOiJhcHBtdGJubG5ja254a3RsZHJkbiIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzY5NjczOTkyLCJleHAiOjIwODUwMzM5OTIsImlzcyI6ImZhbW91cy5kYXRhYmFzZXBhZCIsImF1ZCI6ImZhbW91cy5jbGllbnRzIn0.8Xs1BruGhK2DDb3xPDuekz22NbPIt6Gj9mqc1mmYueo';
+const supabaseUrl = 'https://hufnzvsktpvmkcxxomcz.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh1Zm56dnNrdHB2bWtjeHhvbWN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk3NzIxMzAsImV4cCI6MjA4NTM0ODEzMH0.HkD9kU-5e_uZ59lvW3Aqw759yvTpATgvKAPYSxhCtnE';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 

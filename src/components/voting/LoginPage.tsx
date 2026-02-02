@@ -19,21 +19,76 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
   const handleStudentLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    
+    setLoading(true);
+
     if (!studentId.trim() || !studentName.trim()) {
       setError('Please fill in all fields');
+      setLoading(false);
       return;
     }
 
-    // Check if student has already voted
-    const existingVote = localStorage.getItem(`voted_${studentId}`);
-    if (existingVote) {
-      setError('You have already voted. Each student can only vote once.');
-      return;
-    }
+    try {
+      // First check if student exists
+      const { data: existingStudent, error: checkError } = await supabase
+        .from('students')
+        .select('id, name')
+        .eq('id', studentId.trim())
+        .eq('name', studentName.trim())
+        .single();
 
-    setUser({ role: 'student', studentId: studentId.trim() });
-    onLogin();
+      let studentValidated = false;
+
+      if (existingStudent) {
+        // Student exists and name matches
+        studentValidated = true;
+      } else if (checkError && checkError.code === 'PGRST116') {
+        // Student not found, try to add them
+        const { data: newStudent, error: insertError } = await supabase
+          .from('students')
+          .insert({
+            id: studentId.trim(),
+            name: studentName.trim(),
+            class_level: 'Unknown'
+          })
+          .select()
+          .single();
+
+        if (newStudent && !insertError) {
+          studentValidated = true;
+        } else {
+          setError('Failed to register student. Please try again.');
+          setLoading(false);
+          return;
+        }
+      } else {
+        // Database error
+        setError('Database error. Please try again.');
+        setLoading(false);
+        return;
+      }
+
+      if (!studentValidated) {
+        setError('Invalid student ID or name. Please check your credentials.');
+        setLoading(false);
+        return;
+      }
+
+      // Check if student has already voted
+      const existingVote = localStorage.getItem(`voted_${studentId}`);
+      if (existingVote) {
+        setError('You have already voted. Each student can only vote once.');
+        setLoading(false);
+        return;
+      }
+
+      setUser({ role: 'student', studentId: studentId.trim() });
+      onLogin();
+    } catch (err) {
+      console.error('Login error:', err);
+      setError('Login failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleAdminLogin = async (e: React.FormEvent) => {

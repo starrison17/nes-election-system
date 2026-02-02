@@ -3,6 +3,7 @@ import { useVoting } from '@/contexts/VotingContext';
 import { supabase } from '@/lib/supabase';
 import { Category, Candidate } from '@/types';
 import ResultsExport from './ResultsExport';
+import ImageUpload from './ImageUpload';
 
 interface AdminDashboardProps {
   onLogout: () => void;
@@ -735,16 +736,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
                   className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-blue-500 outline-none"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Image URL</label>
-                <input
-                  type="text"
-                  value={candidateForm.image_url}
-                  onChange={(e) => setCandidateForm(prev => ({ ...prev, image_url: e.target.value }))}
-                  placeholder="https://example.com/image.jpg"
-                  className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-blue-500 outline-none"
-                />
-              </div>
+              <ImageUpload
+                currentImageUrl={candidateForm.image_url}
+                onImageUploaded={(url) => setCandidateForm(prev => ({ ...prev, image_url: url }))}
+              />
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Manifesto</label>
                 <textarea
