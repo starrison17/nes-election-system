@@ -60,10 +60,13 @@ const VotingPortal: React.FC<VotingPortalProps> = ({ onLogout }) => {
   };
 
   const handleSubmit = async () => {
+    if (!allCategoriesVoted)
     setSubmitting(true);
+
     const success = await submitVotes();
+
     setSubmitting(false);
-    
+
     if (success) {
       setShowConfirmation(false);
       setShowConfetti(true);

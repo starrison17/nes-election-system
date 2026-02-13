@@ -75,22 +75,33 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
   const fetchResults = async () => {
     setLoading(true);
     try {
-      const { data: votes, error } = await supabase
-        .from('votes')
-        .select('candidate_id, category_id');
+      // 1️⃣ Fetch ALL votes with pagination to handle large datasets
+      let allVotes = [];
+      let from = 0;
+      const pageSize = 1000;
 
-      if (error) throw error;
+      while (true) {
+        const { data: votes, error } = await supabase
+          .from('votes')
+          .select('candidate_id, student_id')
+          .range(from, from + pageSize - 1);
 
-      const { data: uniqueVotes } = await supabase
-        .from('votes')
-        .select('student_id');
-      
-      const uniqueStudents = new Set(uniqueVotes?.map(v => v.student_id));
-      setTotalVoters(uniqueStudents.size);
+        if (error) throw error;
+        if (!votes || votes.length === 0) break;
 
+        allVotes.push(...votes);
+        from += pageSize;
+      }
+
+      // 2️⃣ Calculate DISTINCT voter count from all fetched votes
+      const uniqueVoters = new Set(allVotes.map(vote => vote.student_id));
+      setTotalVoters(uniqueVoters.size);
+
+      // 3️⃣ Count votes per candidate
       const voteCounts: Record<string, number> = {};
-      votes?.forEach(vote => {
-        voteCounts[vote.candidate_id] = (voteCounts[vote.candidate_id] || 0) + 1;
+      allVotes.forEach(vote => {
+        voteCounts[vote.candidate_id] =
+          (voteCounts[vote.candidate_id] || 0) + 1;
       });
 
       setResults(
@@ -99,7 +110,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
           candidate_name: '',
           category_id: '',
           category_name: '',
-          vote_count: count
+          vote_count: count,
         }))
       );
     } catch (error) {
@@ -293,10 +304,19 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
 
   const openEditCandidate = (candidate: Candidate) => {
     setEditingCandidate(candidate);
+    let imageUrl = candidate.image_url;
+
+    // Pre-set images for specific candidates if not already set
+    if (candidate.name.toLowerCase() === 'dacosta' && !imageUrl) {
+      imageUrl = '/dacosta.jpeg';
+    } else if (candidate.name.toLowerCase() === 'ohene-djan' && !imageUrl) {
+      imageUrl = '/ohene-djan.jpeg';
+    }
+
     setCandidateForm({
       name: candidate.name,
       category_id: candidate.category_id,
-      image_url: candidate.image_url,
+      image_url: imageUrl,
       manifesto: candidate.manifesto,
       class_level: candidate.class_level
     });

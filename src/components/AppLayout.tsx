@@ -7,7 +7,11 @@ import AdminDashboard from './voting/AdminDashboard';
 // Main App Content Component - Handles routing between login, student portal, and admin dashboard
 const AppContent: React.FC = () => {
   const { user } = useVoting();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    // Check if user is already logged in from localStorage
+    const savedUser = localStorage.getItem('votingUser');
+    return savedUser ? true : false;
+  });
   const [pageTransition, setPageTransition] = useState(false);
 
   // Handle login with transition effect
