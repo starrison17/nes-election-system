@@ -65,7 +65,6 @@ const VotingPortal: React.FC<VotingPortalProps> = ({ onLogout }) => {
     setSubmitting(false);
     
     if (success) {
-      localStorage.setItem(`voted_${user?.studentId}`, 'true');
       setShowConfirmation(false);
       setShowConfetti(true);
       setShowSuccess(true);
